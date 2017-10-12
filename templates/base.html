@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        <style>
+            .error{
+            color:red;
+        }
+        </style>
+    </head>
+
+<body>
+        
+    <nav>
+        <a href="/blog">Main Blog page</a>  
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="/newpost">Add new blog post</a> 
+    </nav>
+    {% block content %}
+    {% endblock %}  
+
+</body>
+</html>
