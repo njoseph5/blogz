@@ -20,9 +20,15 @@ class Blog(db.Model):
 
 @app.route('/blog', methods=['POST','GET'])
 def blog():
+    
+    if request.args:
+        id = request.args.get('id')
+        blog = Blog.query.get(id)
+        return render_template('viewpost.html',blog =blog)
+
+
     blogs = Blog.query.all()
     return render_template('blog.html',blogs=blogs)
-
 
 
 @app.route('/newpost', methods=['POST', 'GET'])
@@ -32,10 +38,11 @@ def newpost():
         title = request.form['title']
         body = request.form['blogpost']
         if title and body :
-            new_post = Blog(title,body)
-            db.session.add(new_post)
+            new_blog = Blog(title,body)
+            db.session.add(new_blog)
             db.session.commit()
-            return redirect('/blog')
+            page = str(new_blog.id)
+            return redirect('/blog?id='+page)
 
         else:
              error = "Please enter a title and body both fields are mandatory for a valid blog post !!!"
