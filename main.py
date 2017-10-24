@@ -60,7 +60,7 @@ def login():
         if user and user.password == password:
             session['username'] = username
             flash("Logged in","success")
-            return redirect('/newpost')
+            return redirect('/blog/newpost')
         else:
             flash("User password incorrect or user does not exist","error")
 
@@ -116,37 +116,38 @@ def logout():
 @app.route('/')
 def index():
 
-
     users = User.query.all()
     return render_template('index.html',users = users)
 
 
 @app.route('/blog', methods=['POST','GET'])
 def blog():
-    
-    if request.args == 'user':
-        id = request.args.get('id')
-        blog = Blog.query.get(id)
-        username = User.query.filter_by(id=blog.owner_id).first()
-        return render_template('viewpost.html',blog =blog,username = username)
-    if request.args == 'id':
-        id = request.args.get('id')
-        blog = Blog.query.get(id)
-        return render_template('viewpost.html',blog =blog)    
 
-    blogs = Blog.query.all()
-    return render_template('blog.html',blogs=blogs)
+     username = request.args.get('user') 
+     if username:
+
+         user = User.query.filter_by(username=username).first()
+         blogs = Blog.query.filter_by(owner_id=user.id)
+         return render_template('userposts.html',blogs =blogs,username = username)
+  
+     id = request.args.get('id')
+     if id:
+         blog = Blog.query.get(id)
+         return render_template('viewpost.html',blog =blog,username = blog.owner.username)    
+
+     blogs = Blog.query.all()
+     return render_template('blog.html',blogs=blogs)
 
 
-@app.route('/newpost', methods=['POST', 'GET'])
+@app.route('/blog/newpost', methods=['POST', 'GET'])
 def newpost():
     error = ""
     
-    owner = User.query.filter_by(username=session['username']).first()
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['blogpost']
         if title and body :
+            owner = User.query.filter_by(username=session['username']).first()
             new_blog = Blog(title,body,owner)
             db.session.add(new_blog)
             db.session.commit()
@@ -154,7 +155,8 @@ def newpost():
             return redirect('/blog?id='+page)
 
         else:
-             error = "Please enter a title and body both fields are mandatory for a valid blog post !!!"
+            error = "Please enter a title and body both fields are mandatory for a valid blog post !!!"
+   
     return render_template('newpost.html',title = "New Post",error=error)
 
 
